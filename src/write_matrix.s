@@ -23,18 +23,74 @@
 #     this function terminates the program with error code 30
 # ==============================================================================
 write_matrix:
+    # Prologue 
+    addi sp sp -20
+    sw s0 0(sp)
+    sw s1 4(sp)
+    sw s2 8(sp)
+    sw s3 12(sp)
+    sw ra 16(sp)
 
-    # Prologue
+    # fopen(a0, 'w')
+    mv s1 a1  # the pointer to the start of the matrix
+    mv s2 a2  # number of rows
+    mv s3 a3  # number of columns
+    li a1 1
+    jal ra fopen
+    li t0 -1
+    beq a0 t0 fopen_error
 
+    mv s0 a0  # file descriptor
+    
+    addi sp sp -8
+    sw s2 0(sp)   # &row
+    sw s3 4(sp)   # &col
+    mv a0 s0
+    mv a1 sp
+    li a2 1
+    li a3 4
+    jal ra fwrite # fwrite(fd, &row, 1, 4)
+    li t0 1
+    bne a0 t0 fwrite_error
+    mv a0 s0
+    addi a1 sp 4
+    li a2 1
+    li a3 4
+    jal ra fwrite # fwrite(fd, &col, 1, 4)
+    li t0 1
+    bne a0 t0 fwrite_error
+    addi sp sp 8
 
+    mv a0 s0
+    mv a1 s1
+    mul a2 s2 s3
+    li a3 4
+    jal ra fwrite # fwrite(fd, inputMatrix, row*col, 4)
+    mul t0 s2 s3
+    bne a0 t0 fwrite_error
 
-
-
-
-
-
+    # close(fd)
+    mv a0 s0
+    jal ra fclose
+    li t0 -1
+    beq a0 t0 fclose_error
 
     # Epilogue
-
+    lw s0 0(sp)
+    lw s1 4(sp)
+    lw s2 8(sp)
+    lw s3 12(sp)
+    lw ra 16(sp)
+    addi sp sp 20
 
     jr ra
+
+fopen_error:
+    li a0 27
+    j exit
+fwrite_error:
+    li a0 30
+    j exit
+fclose_error:
+    li a0 28
+    j exit

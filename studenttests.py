@@ -246,9 +246,9 @@ class TestInitializeZero(unittest.TestCase):
     
     def test_initialize_zero_malloc_fail(self):
         t = AssemblyTest(self, "../coverage-src/initialize_zero.s")
-        t.input_scalar("a0", 1<<30)
+        t.input_scalar("a0", 1)
         t.call("initialize_zero")
-        t.execute(code=26)
+        t.execute(fail="malloc", code=26)
 
     @classmethod
     def tearDownClass(cls):
