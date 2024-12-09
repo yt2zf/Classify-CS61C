@@ -24,6 +24,8 @@
 # Usage:
 #   main.s <M0_PATH> <M1_PATH> <INPUT_PATH> <OUTPUT_PATH>
 classify:
+    li t0 5
+    blt a0 t0 argc_not_enough_error
     # Prologue
     addi sp sp -40
     sw s0 0(sp)
@@ -132,9 +134,20 @@ classify:
     jal ra print_char
 
 print_done:
+    # free memory
+    mv a0 s3
+    jal ra free
+    mv a0 s4
+    jal ra free
+    mv a0 s5
+    jal ra free
+    mv a0 s6
+    jal ra free
+    mv a0 s7
+    jal ra free
+    
     mv a0 s8
     addi sp sp 24
-
     # Epilogue
     lw s0 0(sp)
     lw s1 4(sp)
@@ -151,4 +164,7 @@ print_done:
 
 malloc_error:
     li a0 26
+    j exit
+argc_not_enough_error:
+    li a0 31
     j exit
